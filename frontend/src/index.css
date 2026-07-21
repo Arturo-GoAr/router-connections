@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-surface: #0b1220;
+  --color-panel: #121c2e;
+  --color-panel-soft: #182842;
+  --color-edge: #1f3355;
+  --color-accent: #38bdf8;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 700px at 15% -10%, #17304f 0%, transparent 60%),
+    #0b1220;
+  background-attachment: fixed;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Barras de desplazamiento discretas, coherentes con el tema oscuro. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #24395c transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #24395c;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #33507d;
+  background-clip: content-box;
+}

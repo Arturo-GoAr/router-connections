@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Base de datos y datos locales (contienen MACs e IPs de la red real)
+*.db
+*.sqlite3
+backend/data/
+!backend/data/.gitkeep
+
+# Entorno
+.env
+.env.local
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Editores / SO
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+
+# Claude Code
+.claude/
