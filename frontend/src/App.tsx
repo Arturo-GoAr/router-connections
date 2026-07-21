@@ -1,3 +1,4 @@
+import { Search } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { api } from './api/client'
@@ -178,7 +179,7 @@ export default function App() {
           </p>
         ) : filtered.length === 0 ? (
           <EmptyState
-            icon="🔍"
+            icon={Search}
             title={devices.length === 0 ? 'Todavía no hay dispositivos' : 'Ningún dispositivo coincide'}
             detail={
               devices.length === 0

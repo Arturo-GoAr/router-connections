@@ -1,3 +1,5 @@
+import { Star } from 'lucide-react'
+
 import type { Device } from '../api/types'
 import { categoryStyle } from '../lib/categories'
 import { formatRelative, formatUptime } from '../lib/format'
@@ -22,7 +24,7 @@ export function DeviceCard({
       }`}
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl leading-none">{style.icon}</span>
+        <style.icon className="h-6 w-6 shrink-0 text-slate-300" strokeWidth={1.5} />
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -35,7 +37,9 @@ export function DeviceCard({
             <p className="truncate text-sm font-semibold text-slate-100" title={device.display_name}>
               {device.display_name}
             </p>
-            {device.is_favorite && <span className="text-xs text-amber-300">★</span>}
+            {device.is_favorite && (
+              <Star className="h-3.5 w-3.5 shrink-0 fill-amber-300 text-amber-300" />
+            )}
           </div>
 
           <p className="mt-0.5 truncate font-mono text-xs text-slate-400">

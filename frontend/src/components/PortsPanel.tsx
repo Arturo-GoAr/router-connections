@@ -1,3 +1,4 @@
+import { Inbox, Plug, Shield, ShieldOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { api } from '../api/client'
@@ -125,7 +126,7 @@ function UpnpTab({ devices }: { devices: Device[] }) {
     return (
       <div className="space-y-3">
         <EmptyState
-          icon="🔌"
+          icon={Plug}
           title="UPnP no está disponible en tu router"
           detail={status?.reason ?? undefined}
         />
@@ -206,7 +207,7 @@ function UpnpTab({ devices }: { devices: Device[] }) {
 
       {mappings.length === 0 ? (
         <EmptyState
-          icon="📭"
+          icon={Inbox}
           title="No hay puertos redirigidos"
           detail="Cuando crees una redirección, aparecerá aquí y el puerto quedará accesible desde internet."
         />
@@ -321,7 +322,7 @@ function FirewallTab() {
   }
 
   if (!status?.available) {
-    return <EmptyState icon="🛡️" title="Firewall no disponible" detail={status?.reason ?? undefined} />
+    return <EmptyState icon={ShieldOff} title="Firewall no disponible" detail={status?.reason ?? undefined} />
   }
 
   return (
@@ -372,7 +373,7 @@ function FirewallTab() {
 
       {rules.length === 0 ? (
         <EmptyState
-          icon="🧱"
+          icon={Shield}
           title="Sin reglas creadas desde esta app"
           detail="Por seguridad, Router Connections solo lista y borra las reglas que ella misma ha creado; las reglas del sistema no se tocan."
         />

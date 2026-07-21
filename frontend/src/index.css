@@ -15,10 +15,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(1200px 700px at 15% -10%, #17304f 0%, transparent 60%),
-    #0b1220;
-  background-attachment: fixed;
+  background: #0b1220;
   color: #e2e8f0;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;

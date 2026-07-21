@@ -1,3 +1,4 @@
+import { X } from 'lucide-react'
 import { useState } from 'react'
 
 import { api } from '../api/client'
@@ -85,7 +86,7 @@ export function TagManager({ tags, onChanged }: { tags: Tag[]; onChanged: () => 
                 className="opacity-60 transition-opacity hover:opacity-100"
                 aria-label={`Borrar etiqueta ${tag.name}`}
               >
-                ✕
+                <X className="h-3 w-3" strokeWidth={2} />
               </button>
             </span>
           ))}

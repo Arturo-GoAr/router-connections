@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 /** Primitivas visuales compartidas por todo el panel. */
@@ -127,10 +128,18 @@ export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
   return <textarea {...props} className={`${INPUT_CLASS} ${props.className ?? ''}`} />
 }
 
-export function EmptyState({ icon, title, detail }: { icon: string; title: string; detail?: string }) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  detail,
+}: {
+  icon: LucideIcon
+  title: string
+  detail?: string
+}) {
   return (
     <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-      <span className="text-3xl opacity-60">{icon}</span>
+      <Icon className="h-8 w-8 text-slate-500" strokeWidth={1.5} />
       <p className="text-sm font-medium text-slate-300">{title}</p>
       {detail && <p className="max-w-md text-xs leading-relaxed text-slate-500">{detail}</p>}
     </div>

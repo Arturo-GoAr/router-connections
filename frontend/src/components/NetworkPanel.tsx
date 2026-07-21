@@ -1,3 +1,5 @@
+import { Building2, Globe, Monitor, Router as RouterIcon, type LucideIcon } from 'lucide-react'
+
 import type { NetworkStatus } from '../api/types'
 import { formatRelative } from '../lib/format'
 import { Chip, Panel } from './ui'
@@ -21,17 +23,17 @@ function TopologyChain({ status }: { status: NetworkStatus }) {
   const topology = status.topology
   if (!topology) return null
 
-  const nodes = [
-    { label: 'Tu PC', sub: status.interface?.ip ?? '', icon: '🖥️' },
+  const nodes: { label: string; sub: string; icon: LucideIcon }[] = [
+    { label: 'Tu PC', sub: status.interface?.ip ?? '', icon: Monitor },
     ...topology.private_hops.map((ip, index) => ({
       label: index === 0 && topology.kind === 'direct' ? 'Router principal' : `Router ${index + 1}`,
       sub: ip,
-      icon: '🛜',
+      icon: RouterIcon,
     })),
     {
       label: topology.behind_cgnat ? 'CGNAT del ISP' : 'Internet',
       sub: status.public_ip ?? '',
-      icon: topology.behind_cgnat ? '🏢' : '🌍',
+      icon: topology.behind_cgnat ? Building2 : Globe,
     },
   ]
 
@@ -40,8 +42,8 @@ function TopologyChain({ status }: { status: NetworkStatus }) {
       {nodes.map((node, index) => (
         <div key={`${node.label}-${index}`} className="flex items-center gap-2">
           <div className="rounded-xl border border-edge bg-panel-soft/60 px-3 py-2">
-            <p className="text-xs font-medium text-slate-200">
-              <span className="mr-1">{node.icon}</span>
+            <p className="flex items-center gap-1.5 text-xs font-medium text-slate-200">
+              <node.icon className="h-3.5 w-3.5 text-slate-400" strokeWidth={1.75} />
               {node.label}
             </p>
             {node.sub && <p className="font-mono text-[11px] text-slate-400">{node.sub}</p>}

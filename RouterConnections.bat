@@ -19,10 +19,15 @@ REM --- 1. Elevacion --------------------------------------------------
 REM  `fltmc` es un comando que solo se ejecuta con privilegios, asi que
 REM  sirve para saber si ya estamos elevados. Si no lo estamos, se
 REM  relanza este mismo archivo con UAC y esta instancia termina.
+REM  Se relanza explicitamente con cmd.exe (en vez de dejar que Windows
+REM  abra el .bat por asociacion de archivo) y con -WindowStyle Normal,
+REM  porque Windows Terminal a veces abre los .bat elevados minimizados
+REM  o en una pestana sin foco, dando la impresion de que "desaparece" y
+REM  queda corriendo en segundo plano sin ventana donde cerrarlo.
 fltmc >nul 2>&1
 if errorlevel 1 (
     echo Solicitando permisos de administrador...
-    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs -WorkingDirectory '%~dp0'"
+    powershell -NoProfile -Command "Start-Process -FilePath 'cmd.exe' -ArgumentList '/c','%~f0' -Verb RunAs -WorkingDirectory '%~dp0' -WindowStyle Normal"
     exit /b 0
 )
 

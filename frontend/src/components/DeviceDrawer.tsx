@@ -1,3 +1,4 @@
+import { Star, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { api } from '../api/client'
@@ -136,8 +137,9 @@ export function DeviceDrawer({ deviceId, categories, tags, onClose, onChanged }:
       <aside className="relative flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-edge bg-panel shadow-2xl">
         <header className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-edge bg-panel/95 px-5 py-4 backdrop-blur">
           <div className="min-w-0">
-            <p className="truncate text-base font-semibold text-slate-100">
-              {style?.icon} {device?.display_name ?? 'Cargando…'}
+            <p className="flex items-center gap-2 truncate text-base font-semibold text-slate-100">
+              {style && <style.icon className="h-4 w-4 shrink-0 text-slate-300" strokeWidth={1.5} />}
+              {device?.display_name ?? 'Cargando…'}
             </p>
             {device && (
               <p className="truncate font-mono text-xs text-slate-400">
@@ -150,7 +152,7 @@ export function DeviceDrawer({ deviceId, categories, tags, onClose, onChanged }:
             className="rounded-lg px-2 py-1 text-slate-400 transition-colors hover:bg-panel-soft hover:text-slate-100"
             aria-label="Cerrar"
           >
-            ✕
+            <X className="h-4 w-4" strokeWidth={1.75} />
           </button>
         </header>
 
@@ -249,7 +251,10 @@ export function DeviceDrawer({ deviceId, categories, tags, onClose, onChanged }:
                   Guardar cambios
                 </Button>
                 <Button onClick={toggleFavorite}>
-                  {device.is_favorite ? '★ Quitar de favoritos' : '☆ Marcar favorito'}
+                  <Star
+                    className={`h-3.5 w-3.5 ${device.is_favorite ? 'fill-amber-300 text-amber-300' : ''}`}
+                  />
+                  {device.is_favorite ? 'Quitar de favoritos' : 'Marcar favorito'}
                 </Button>
               </div>
             </section>

@@ -1,3 +1,4 @@
+import { AlertTriangle, Info, X } from 'lucide-react'
 import { useState } from 'react'
 
 import type { Diagnostic } from '../api/types'
@@ -22,7 +23,11 @@ export function Diagnostics({ items }: { items: Diagnostic[] }) {
                 : 'border-edge/70 bg-panel/60'
             }`}
           >
-            <span className="mt-0.5 text-base">{isWarning ? '⚠️' : 'ℹ️'}</span>
+            {isWarning ? (
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" strokeWidth={1.75} />
+            ) : (
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" strokeWidth={1.75} />
+            )}
             <div className="min-w-0 flex-1">
               <p className={`text-sm font-medium ${isWarning ? 'text-amber-200' : 'text-slate-200'}`}>
                 {item.title}
@@ -34,7 +39,7 @@ export function Diagnostics({ items }: { items: Diagnostic[] }) {
               className="rounded px-1.5 text-slate-500 transition-colors hover:text-slate-300"
               aria-label="Descartar aviso"
             >
-              ✕
+              <X className="h-4 w-4" strokeWidth={1.75} />
             </button>
           </div>
         )
