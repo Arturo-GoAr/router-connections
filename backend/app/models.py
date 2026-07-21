@@ -74,7 +74,7 @@ class Tag(SQLModel, table=True):
 class Device(SQLModel, table=True):
     """Un dispositivo visto en la red local, identificado por su MAC."""
 
-    id: int | None = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
 
     mac: str = Field(index=True, unique=True, description="MAC normalizada aa:bb:cc:...")
     ip: str | None = Field(default=None, index=True)
@@ -160,6 +160,27 @@ class PortRecord(SQLModel, table=True):
     last_seen: datetime = Field(default_factory=utcnow)
 
     device: Optional[Device] = Relationship(back_populates="ports")
+
+
+class DeviceSignal(SQLModel, table=True):
+    """Una señal de descubrimiento observada en un dispositivo.
+
+    Existe porque las señales son **intermitentes**: una TV solo contesta a SSDP
+    cuando está encendida, y un móvil solo anuncia mDNS cuando está despierto.
+    Si la clasificación usara únicamente lo visto en el último barrido, un
+    dispositivo bien identificado se degradaría a "desconocido" en cuanto se
+    durmiera. Guardándolas, la evidencia se acumula y la categoría es estable.
+    """
+
+    __tablename__ = "device_signal"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    device_id: int = Field(foreign_key="device.id", index=True)
+    #: "upnp" | "mdns" | "banner"
+    kind: str = Field(index=True)
+    value: str
+    first_seen: datetime = Field(default_factory=utcnow)
+    last_seen: datetime = Field(default_factory=utcnow)
 
 
 class ScanRun(SQLModel, table=True):

@@ -73,11 +73,17 @@ class Classification:
 # Se buscan en el texto agregado (fabricante + nombre + servicios + banners).
 
 KEYWORD_RULES: list[tuple[C, int, tuple[str, ...]]] = [
+    # "crystal uhd", "qled" y demás son líneas comerciales de televisor: si
+    # aparecen en el nombre que anuncia el propio aparato, es una TV.
     (C.TV, STRONG, ("smart tv", "smarttv", "bravia", "roku", "firetv", "fire tv",
                     "chromecast", "android tv", "appletv", "apple tv", "webos",
-                    "tizen", "vizio", "hisense", "mediarenderer")),
+                    "tizen", "vizio", "hisense", "mediarenderer",
+                    "crystal uhd", "qled", "the frame", "nanocell",
+                    "dial-multiscreen")),
+    # AirPlay a secas no distingue: lo hablan igual un HomePod y un Apple TV,
+    # así que aquí solo van servicios que son inequívocamente de altavoz.
     (C.SPEAKER, STRONG, ("sonos", "homepod", "echo dot", "alexa", "soundbar",
-                         "spotify-connect", "airplay", "bose", "nest audio")),
+                         "spotify-connect", "bose", "nest audio")),
     (C.PRINTER, CONCLUSIVE, ("printer", "impresora", "laserjet", "officejet",
                              "deskjet", "_ipp", "_pdl-datastream", "envy",
                              "ecotank", "workforce", "brother")),

@@ -21,6 +21,7 @@ from ..models import (
     Device,
     DeviceCategory,
     DeviceSession,
+    DeviceSignal,
     PortRecord,
     PortState,
     ScanRun,
@@ -119,6 +120,60 @@ def _close_stale_devices(session: Session, seen_macs: set[str], now) -> int:
             open_session.ended_at = open_session.last_seen
         closed += 1
     return closed
+
+
+#: Tipos de señal que se acumulan, en el orden en que se leen de `DiscoveryInfo`.
+SIGNAL_KINDS = ("upnp", "mdns", "banner")
+
+
+def _store_signals(
+    session: Session, device: Device, info: discovery.DiscoveryInfo, now
+) -> None:
+    """Guarda las señales vistas en este barrido, sin borrar las anteriores.
+
+    Las señales son intermitentes (una TV apagada no contesta a SSDP), así que
+    se acumulan en vez de reemplazarse. `last_seen` permite saber cuándo se
+    observó cada una por última vez.
+    """
+    observed = [
+        *((("upnp"), value) for value in info.upnp_device_types),
+        *((("mdns"), value) for value in info.mdns_services),
+        *((("banner"), value) for value in info.server_banners),
+    ]
+    if not observed:
+        return
+
+    existing = {
+        (record.kind, record.value): record
+        for record in session.exec(
+            select(DeviceSignal).where(DeviceSignal.device_id == device.id)
+        ).all()
+    }
+
+    for kind, value in observed:
+        record = existing.get((kind, value))
+        if record:
+            record.last_seen = now
+        else:
+            session.add(
+                DeviceSignal(
+                    device_id=device.id,
+                    kind=kind,
+                    value=value,
+                    first_seen=now,
+                    last_seen=now,
+                )
+            )
+
+
+def _load_signals(session: Session, device: Device) -> dict[str, list[str]]:
+    """Devuelve todas las señales acumuladas del dispositivo, agrupadas por tipo."""
+    grouped: dict[str, list[str]] = {kind: [] for kind in SIGNAL_KINDS}
+    for record in session.exec(
+        select(DeviceSignal).where(DeviceSignal.device_id == device.id)
+    ).all():
+        grouped.setdefault(record.kind, []).append(record.value)
+    return grouped
 
 
 def _store_ports(
@@ -264,6 +319,10 @@ async def _do_scan(
                 device.hostname = info.hostname or device.hostname
                 device.friendly_name = info.friendly_name or device.friendly_name
                 device.model = info.model or device.model
+                _store_signals(session, device, info, now)
+                # Las señales recién añadidas tienen que ser visibles para la
+                # consulta que hace `_load_signals` justo debajo.
+                session.flush()
 
             if open_ports:
                 _store_ports(session, device, open_ports, now)
@@ -282,6 +341,9 @@ async def _do_scan(
                 if ip in topology.private_hops
                 else None
             )
+            # Se clasifica con TODAS las señales acumuladas, no solo con las de
+            # este barrido: si no, un dispositivo dormido perdería su categoría.
+            signals = _load_signals(session, device)
             evidence = Evidence(
                 mac=mac,
                 vendor=device.vendor,
@@ -289,9 +351,9 @@ async def _do_scan(
                 friendly_name=device.friendly_name,
                 manufacturer=info.manufacturer if info else None,
                 model=device.model,
-                upnp_device_types=info.upnp_device_types if info else [],
-                mdns_services=info.mdns_services if info else [],
-                server_banners=info.server_banners if info else [],
+                upnp_device_types=signals["upnp"],
+                mdns_services=signals["mdns"],
+                server_banners=signals["banner"],
                 open_ports=known_ports,
                 is_gateway=device.is_gateway,
                 is_self=device.is_self,
@@ -327,13 +389,18 @@ async def scan_device_ports(device_id: int, profile: str = "common") -> list[dic
         device = session.get(Device, device_id)
         if device:
             _store_ports(session, device, open_ports, now)
-            # Los puertos abiertos son una señal fuerte: reclasificamos.
+            # Los puertos abiertos son una señal fuerte: reclasificamos, pero
+            # sin perder lo que ya se sabía por SSDP y mDNS.
+            signals = _load_signals(session, device)
             evidence = Evidence(
                 mac=device.mac,
                 vendor=device.vendor,
                 hostname=device.hostname,
                 friendly_name=device.friendly_name,
                 model=device.model,
+                upnp_device_types=signals["upnp"],
+                mdns_services=signals["mdns"],
+                server_banners=signals["banner"],
                 open_ports=[p.port for p in open_ports],
                 is_gateway=device.is_gateway,
                 is_self=device.is_self,
