@@ -8,10 +8,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from . import __version__, scheduler
 from .api import api_router, ws
-from .config import settings
+from .config import BASE_DIR, settings
 from .db import init_db
 from .scanner import oui, orchestrator
 
@@ -76,3 +77,23 @@ app.include_router(ws.router)
 @app.get("/health", tags=["salud"])
 async def health() -> dict:
     return {"status": "ok", "version": __version__}
+
+
+# El frontend compilado se sirve desde el propio backend, de modo que arrancar
+# la aplicación sea un único proceso en un único puerto. Este montaje va al
+# final a propósito: al colgar de "/" haría sombra a cualquier ruta registrada
+# después, y las de la API tienen que ganar.
+#
+# En desarrollo (`npm run dev`) esta carpeta no existe y no pasa nada: Vite
+# sirve el frontend en el 5173 y hace proxy de /api hacia aquí.
+FRONTEND_DIST = BASE_DIR.parent / "frontend" / "dist"
+
+if FRONTEND_DIST.is_dir():
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST, html=True), name="frontend")
+    log.info("Sirviendo el frontend compilado desde %s", FRONTEND_DIST)
+else:
+    log.info(
+        "No hay frontend compilado en %s; solo se sirve la API. "
+        "Compílalo con 'npm run build' o usa 'npm run dev'.",
+        FRONTEND_DIST,
+    )

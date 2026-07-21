@@ -56,7 +56,28 @@ suficientes, el dispositivo se marca como *desconocido* en vez de adivinar.
 
 ## Puesta en marcha
 
-### Backend
+### Uso normal: un solo archivo
+
+Doble clic en **`RouterConnections.bat`**. Eso es todo.
+
+El lanzador pide permisos de administrador, prepara el entorno de Python la
+primera vez, compila la interfaz si hace falta, arranca el servidor y abre el
+navegador en `http://127.0.0.1:8000`.
+
+Se ejecuta elevado porque **crear y borrar reglas del Firewall de Windows es lo
+único que exige privilegios**. Si lo abres sin elevar, todo lo demás —escaneo,
+inventario, UPnP— funciona igual; solo la pestaña del firewall queda en modo
+lectura, y la propia interfaz lo indica.
+
+La aplicación se sirve entera desde un único proceso y un único puerto: el
+backend publica también el frontend compilado.
+
+### Desarrollo
+
+Para trabajar en el código conviene levantar los dos servidores por separado y
+tener recarga en caliente. `start-dev.ps1` lo hace, o a mano:
+
+#### Backend
 
 ```bash
 cd backend
@@ -69,7 +90,7 @@ python -m uvicorn app.main:app --reload
 La API queda en `http://127.0.0.1:8000` y su documentación interactiva en
 `http://127.0.0.1:8000/docs`.
 
-### Frontend
+#### Frontend
 
 ```bash
 cd frontend
@@ -95,9 +116,10 @@ cd backend
 ## Arquitectura
 
 ```
+RouterConnections.bat  Lanzador único: eleva, prepara el entorno y arranca
 backend/
   app/
-    main.py            Punto de entrada FastAPI
+    main.py            Punto de entrada FastAPI; sirve también el frontend
     models.py          Tablas SQLite (dispositivos, sesiones, puertos, etiquetas)
     scanner/
       arp.py           Barrido de la subred vía sondeo UDP + tabla ARP
